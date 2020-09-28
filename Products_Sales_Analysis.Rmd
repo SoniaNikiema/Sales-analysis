@@ -1,0 +1,142 @@
+---
+title: "sales-analysis"
+author: "Sonia Nikiema"
+date: "9/26/2020"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(scales)
+library(dplyr)
+library(plotly)
+library(htmlwidgets)
+```
+
+```{r}
+raw_sales<- read.csv("data/EtsySoldOrderItems2020.csv")
+raw_sales1<- read.csv("data/EtsySoldOrderItems2020.csv")
+```
+
+# Reflection
+
+# 	SAGANUTRIENTS PROMISE
+
+So, here’s at Saganutrients our promise to you. Each Saga product will do what it says and, as always, our products are made with Family Certified Premium Grade Organic Shea Butter and the finest ingredients right here in the USA.
+
+#  SAGANUTRIENTS Products Pledge!
+
+We will not put a single toxic chemical in any of our products!
+
+What does this mean for you and your family? It means you can use any or all of our products and be sure that there is not a single ingredient in them that will have a toxic effect on you or your family’s health. Because it is vital for you and your loved ones to live a long and healthy life
+
+# SAGANUTRIENTS PRODUCTS SALES IN USA
+
+I would like to thank all these states for being part of my Journey. #california (CA), you are hansome , shout out to you. #maryland (MD), I did not know that you will be the second largest buyer in this quarter sales analysis, Thank you. #texas (TX) and #newyork (NY) #illinoiS (IL) , THANK YOU for your support. #florida (FL) AND #georgia (GA) my home state #saganutrients will not be succesful without your support. THANKS TO #washington (WA), #virginia (VA), #tennessee (TN), #oregon (OR), #newjersey (NJ), #northcacarolina (NC), #michigan (MI), #alabama (AL). If your states did not appears on this sales analysis, based on my educated guess, it may appear on my next sales analysis -purchase one product of saga nutrients and make your state shine in this colorful graph.
+
+```{r}
+raw_sales$Item.Total= raw_sales$Item.Total/sum(raw_sales$Item.Total)
+
+raw_sales$Date.Paid=as.Date(raw_sales$Date.Paid, format="%m/%d/%y")
+
+raw_sales<- raw_sales%>%
+mutate(fancy_label = paste0(Ship.State, "<br>", 
+percent(Item.Total, accuracy = 0.1), " total sales"))
+
+```
+
+
+```{r}
+raw_sales<- raw_sales1
+raw_sales %>%
+  count(Item.Total, Ship.State) %>%
+  ggplot(aes(Item.Total, Ship.State, fill=Ship.State))+
+  geom_col()+
+  scale_color_manual(values = c("#85144b", "#001f3f", "#3D9970", "#FF851B", "#B10DC9", "#0074D9", "#2ECC40", "#FF4136", "#7FDBFF", "#01FF70", "#39CCCC", "#FFDC00", "#F012BE", "#f2ad22", "grey70"))+
+  theme_bw()+
+   guides(fill = FALSE) +
+  labs(title = "Saga Nutrients products sales Analysis in USA",
+       x = "Amounts", y = "States")
+
+```
+
+
+```{r}
+static_plot<-raw_sales%>%
+  count(Item.Total, Ship.State) %>%
+  ggplot(aes(Item.Total, Ship.State, fill=Ship.State))+
+  geom_col()+
+    scale_x_continuous(labels = scales::percent_format(), expand = c(0, 0))+
+  scale_color_manual(values = c("#85144b", "#001f3f", "#3D9970", "#FF851B", "#B10DC9", "#0074D9", "#2ECC40", "#FF4136", "#7FDBFF", "#01FF70", "#39CCCC", "#FFDC00", "#F012BE", "#f2ad22", "grey70"))+
+  theme_bw()+
+   guides(fill = FALSE) +
+  labs(title = "Saga Nutrients products sales Analysis in USA",
+       x = "% products sales", y = "States")
+static_plot
+```
+
+```{r}
+ggsave("plot_graph.png", static_plot)
+```
+
+
+```{r}
+ggplotly(static_plot)
+```
+
+
+```{r}
+static_plot_toolip<-raw_sales%>%
+  count(Item.Total, Ship.State) %>%
+  ggplot(aes(Item.Total, Ship.State, fill=Ship.State))+
+  geom_col(aes(text=Ship.State))+
+    scale_x_continuous(labels = scales::percent_format())+
+  scale_color_manual(values = c("#85144b", "#001f3f", "#3D9970", "#FF851B", "#B10DC9", "#0074D9", "#2ECC40", "#FF4136", "#7FDBFF", "#01FF70", "#39CCCC", "#FFDC00", "#F012BE", "#f2ad22", "grey70"))+
+  theme_bw()+
+   guides(fill = FALSE) +
+  labs(title = "Saga Nutrients products sales Analysis in USA",
+       x = "% products sales", y = "States")
+static_plot_toolip
+```
+
+```{r}
+ggplotly(static_plot_toolip, tooltip = "text")
+```
+
+
+```{r}
+static_plot_toolip_fancy<-raw_sales%>%
+  count(Item.Total, Ship.State, fancy_label) %>%
+  ggplot(aes(Item.Total, Ship.State, fill=Ship.State))+
+  geom_col(aes(text=fancy_label))+
+    scale_x_continuous(labels = scales::percent_format())+
+  scale_color_manual(values = c("#85144b", "#001f3f", "#3D9970", "#FF851B", "#B10DC9", "#0074D9", "#2ECC40", "#FF4136", "#7FDBFF", "#01FF70", "#39CCCC", "#FFDC00", "#F012BE", "#f2ad22", "grey70"))+
+  theme_bw()+
+   guides(fill = FALSE) +
+  labs(title = "Saga Nutrients products sales Analysis in USA",
+       x = "% products sales", y = "States")
+static_plot_toolip_fancy
+```
+
+```{r}
+ggplotly(static_plot_toolip_fancy, tooltip = "text")
+```
+
+
+```{r}
+
+interactive_plot <- static_plot_toolip_fancy
+
+```
+
+
+```{r}
+#saveWidget(interactive_plot, file="graph.html")
+```
+
+
+```{r}
+#htmlwidgets::saveWidget("graph.html", interactive_plot)
+```
+
+
